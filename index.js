@@ -6,24 +6,23 @@ export default {
       "Access-Control-Allow-Headers": "Content-Type",
     };
 
+    // Handle the Preflight request from the browser
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Safety Guard: Ensure it's a POST request with a body
+    if (request.method !== "POST") {
+      return new Response("Please send a POST request with JSON body.", { status: 405, headers: corsHeaders });
+    }
+
     try {
       const body = await request.json();
-
-      // The System Prompt tells the AI to focus ONLY on technical specs.
-      // It will see the "Beauty" status in the user message but won't have to calculate it.
-      const systemPrompt = `You are the éStandard assessment engine. 
-Return ONLY a JSON object. No prose. No explanations.
-
-CRITERIA:
-1. DURABLE: Based on materials/construction, will it last 10 years?
-2. WASHABLE: Can the owner maintain/clean the surface themselves?
-
-OUTPUT FORMAT:
-{"itemName":"Product Name","durable":{"pass":true},"washable":{"pass":true}}`;
+      
+      // Safety Guard: Check if messages exist
+      if (!body.messages) {
+        throw new Error("No messages found in request body");
+      }
 
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
@@ -34,26 +33,27 @@ OUTPUT FORMAT:
         },
         body: JSON.stringify({
           model: "claude-3-sonnet-20240229",
-          max_tokens: 300,
-          system: systemPrompt,
+          max_tokens: 400,
+          system: "You are the éStandard assessment engine. Return ONLY JSON. Format: {\"itemName\":\"Name\",\"durable\":{\"pass\":true},\"washable\":{\"pass\":true}}",
           messages: body.messages,
         }),
       });
 
       const result = await response.json();
 
-      if (!result.content || result.content.length === 0) {
-        throw new Error("AI failed to respond");
+      // If Anthropic sends an error, pass it through so we can see it
+      if (result.error) {
+        return new Response(JSON.stringify({ error: result.error.message }), { status: 400, headers: corsHeaders });
       }
 
-      // Clean the AI response to ensure it is pure JSON
-      let aiText = result.content[0].text.replace(/```json|```/g, "").trim();
+      const aiText = result.content[0].text.replace(/```json|```/g, "").trim();
 
       return new Response(aiText, {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
 
     } catch (err) {
+      // This sends the actual error message back to Carrd instead of just crashing
       return new Response(JSON.stringify({ error: err.message }), { 
         status: 500, 
         headers: corsHeaders 
