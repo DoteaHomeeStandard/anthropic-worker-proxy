@@ -1,111 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The éStandard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --oat: #F5F1EA; --taupe: #C7B8A4; --brown: #9A7B5C; --ink: #2A2420; --muted: #7A6E65; --line: #DDD8D0; --cream: #FAF8F4; --pass: #2D5016; --fail: #6B2B1F; }
-        body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--ink); padding: 20px; font-weight: 300; }
-        .wrap { max-width: 400px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 30px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
-        .step { display: none; } .step.active { display: block; }
-        h2 { font-family: 'Cormorant Garamond', serif; font-size: 26px; margin-bottom: 15px; font-weight: 300; }
-        .upload-zone { border: 1px dashed var(--taupe); padding: 40px 20px; text-align: center; cursor: pointer; background: #fff; margin-bottom: 15px; border-radius: 4px; }
-        .preview-img { width: 100%; max-height: 250px; object-fit: cover; display: none; margin-bottom: 15px; border-radius: 4px; }
-        input[type="text"], input[type="url"] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--line); border-radius: 4px; font-family: 'Jost'; }
-        .opt { padding: 12px; border: 1px solid var(--line); margin-bottom: 8px; cursor: pointer; background: #fff; border-radius: 4px; font-size: 14px; transition: 0.2s; }
-        .opt.selected { border-color: var(--brown); background: var(--oat); }
-        .btn { width: 100%; padding: 16px; background: var(--ink); color: #fff; border: none; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 10px; font-family: 'Jost'; }
-        .verdict-stamp { text-align: center; padding: 30px; border: 1px solid var(--line); background: #fff; margin-bottom: 20px; }
-        .verdict-word { font-family: 'Cormorant Garamond', serif; font-size: 36px; margin-bottom: 10px; }
-        .cta { background: var(--oat); padding: 20px; text-align: center; border-radius: 4px; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The éStandard — Dotéa Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+--oat: #F5F1EA; --taupe: #C7B8A4; --brown: #9A7B5C; --ink: #2A2420;
+--muted: #7A6E65; --line: #DDD8D0; --cream: #FAF8F4;
+--pass-bg: #EDF3E6; --pass-text: #2D5016; --fail-bg: #F5EDEA; --fail-text: #6B2B1F;
+}
+body { font-family: 'Jost', sans-serif; font-weight: 300; background: var(--cream); color: var(--ink); min-height: 100vh; letter-spacing: 0.01em; padding: 20px; }
+.wrap { max-width: 420px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 3rem; }
+.wordmark { font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+.wordmark em { font-style: italic; color: var(--brown); }
+.divider-line { width: 40px; height: 0.5px; background: var(--taupe); margin: 0.75rem auto; }
+.step { display: none; }
+.step.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.step-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--taupe); margin-bottom: 0.5rem; font-weight: 400; }
+h2 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; line-height: 1.3; color: var(--ink); margin-bottom: 0.5rem; }
+.sub { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; font-weight: 300; }
+.upload-zone { border: 0.5px solid var(--line); border-radius: 4px; padding: 1.75rem 1rem; text-align: center; cursor: pointer; position: relative; background: #fff; margin-bottom: 0.75rem; }
+.preview-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 0.75rem; display: none; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.field input { width: 100%; font-family: 'Jost', sans-serif; font-size: 14px; padding: 10px 12px; border: 0.5px solid var(--line); border-radius: 4px; outline: none; }
+.q { margin-bottom: 1.75rem; }
+.q-text { font-size: 14px; color: var(--ink); line-height: 1.65; margin-bottom: 0.75rem; }
+.opts { display: flex; flex-direction: column; gap: 6px; }
+.opt { display: flex; align-items: flex-start; gap: 12px; padding: 11px 14px; border: 0.5px solid var(--line); border-radius: 4px; cursor: pointer; font-size: 13px; color: var(--muted); background: #fff; transition: all 0.15s; }
+.opt.selected { border-color: var(--brown); background: var(--oat); color: var(--ink); }
+.btn { width: 100%; padding: 14px; background: var(--ink); color: var(--oat); border: none; border-radius: 4px; font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; margin-top: 1rem; }
+.btn:disabled { opacity: 0.35; }
+.verdict-stamp { text-align: center; padding: 2.5rem 1.5rem; border: 0.5px solid var(--line); border-radius: 4px; background: #fff; margin-bottom: 1.5rem; }
+.verdict-word { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 300; }
+.pass { color: var(--pass-text); } .fail { color: var(--fail-text); }
+.cta-box { background: var(--oat); border: 0.5px solid var(--line); border-radius: 4px; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem;}
+.cta-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; margin-bottom: 8px; color: var(--ink); }
+</style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="header">Dotéa Home · <em>the éStandard</em></div>
-
-        <div class="step active" id="s1">
-            <h2>The Product</h2>
-            <img id="p-img" class="preview-img" />
-            <div class="upload-zone" id="u-zone" onclick="document.getElementById('f-in').click()">Tap to upload photo</div>
-            <input type="file" id="f-in" style="display:none" onchange="handleImg(event)">
-            <input type="url" id="link" placeholder="Product Link">
-            <input type="text" id="name" placeholder="Item Name">
-            <input type="text" id="price" placeholder="Price ($)">
-            <button class="btn" onclick="go(2)">Continue</button>
-        </div>
-
-        <div class="step" id="s2">
-            <h2>The Beauty</h2>
-            <p style="margin-bottom:15px; font-size:14px; color:var(--muted)">If this were unavailable tomorrow, your reaction would be:</p>
-            <div id="q1">
-                <div class="opt" onclick="pk('q1',this,'A')">I'd find something similar</div>
-                <div class="opt" onclick="pk('q1',this,'B')">I'd be mildly disappointed</div>
-                <div class="opt" onclick="pk('q1',this,'C')">I would actively secure it</div>
-            </div>
-            <button class="btn" onclick="run()">Apply the éStandard</button>
-        </div>
-
-        <div class="step" id="loading" style="text-align:center; padding:50px;">Applying...</div>
-
-        <div class="step" id="res">
-            <div class="verdict-stamp">
-                <div id="v-name" style="font-size:10px; text-transform:uppercase; margin-bottom:5px;"></div>
-                <div id="v-word" class="verdict-word"></div>
-                <div id="v-details" style="font-size:13px; color:var(--muted)"></div>
-            </div>
-            <div class="cta">
-                <div style="font-family:'Cormorant Garamond'; font-size:20px; margin-bottom:10px;">Full Assessment</div>
-                <p style="font-size:12px; margin-bottom:15px;">$388 · 5 Business Day Turnaround</p>
-                <button class="btn" onclick="window.open('https://doteahome.store','_blank')">Order Now</button>
-            </div>
-        </div>
+<div class="wrap">
+    <div class="header">
+        <div class="wordmark">Dotéa Home · <em>the éStandard</em></div>
+        <div class="divider-line"></div>
     </div>
 
-    <script>
-        let sel = {}; let b64 = null;
-        function handleImg(e) {
-            const f = e.target.files[0];
-            const r = new FileReader();
-            r.onload = ev => {
-                b64 = ev.target.result.split(',')[1];
-                document.getElementById('p-img').src = ev.target.result;
-                document.getElementById('p-img').style.display = 'block';
-                document.getElementById('u-zone').style.display = 'none';
-            };
-            r.readAsDataURL(f);
-        }
-        function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('s'+n).classList.add('active'); }
-        function pk(g,el,v) { document.querySelectorAll('#'+g+' .opt').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); sel[g]=v; }
+    <div class="step active" id="step-1">
+        <div class="step-label">Step 1 of 3</div>
+        <h2>What are you considering?</h2>
+        <img id="preview-img" class="preview-img" />
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">Tap to upload photo</div>
+        <input type="file" accept="image/*" id="file-input" onchange="handleFile(event)" style="display:none;" />
+        <div class="field"><label>Product link</label><input type="url" id="link-input" placeholder="https://..."></div>
+        <div class="field"><label>Item name</label><input type="text" id="item-name"></div>
+        <div class="field"><label>Price</label><input type="text" id="item-price" placeholder="$"></div>
+        <button class="btn" onclick="goTo(2)">Continue</button>
+    </div>
 
-        async function run() {
-            go('loading');
-            const PROXY = 'https://assessment.doteahome.workers.dev';
-            const body = { messages: [{ role: 'user', content: [
-                { type: 'text', text: `Item: ${document.getElementById('name').value} Price: ${document.getElementById('price').value}` }
-            ]}]};
-            if(b64) body.messages[0].content.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 }});
+    <div class="step" id="step-2">
+        <div class="step-label">Step 2 of 3 — Beauty</div>
+        <h2>Do you love it?</h2>
+        <div class="q">
+            <div class="q-text">If this piece were unavailable tomorrow, your reaction would be:</div>
+            <div class="opts" id="b1">
+                <div class="opt" onclick="pick('b1',this)" data-val="A">I'd find something similar</div>
+                <div class="opt" onclick="pick('b1',this)" data-val="B">I'd be mildly disappointed</div>
+                <div class="opt" onclick="pick('b1',this)" data-val="C">I would actively try to secure it</div>
+            </div>
+        </div>
+        <div class="q">
+            <div class="q-text">When you imagine living with this piece for 10 years:</div>
+            <div class="opts" id="b2">
+                <div class="opt" onclick="pick('b2',this)" data-val="A">I assume I'll replace it eventually</div>
+                <div class="opt" onclick="pick('b2',this)" data-val="B">I'm unsure</div>
+                <div class="opt" onclick="pick('b2',this)" data-val="C">I can see it aging with the home</div>
+            </div>
+        </div>
+        <div class="q">
+            <div class="q-text">If someone questioned this purchase, you would:</div>
+            <div class="opts" id="b3">
+                <div class="opt" onclick="pick('b3',this)" data-val="A">Second-guess myself</div>
+                <div class="opt" onclick="pick('b3',this)" data-val="B">Defend it logically</div>
+                <div class="opt" onclick="pick('b3',this)" data-val="C">Feel completely certain</div>
+            </div>
+        </div>
+        <div class="q">
+            <div class="q-text">I am choosing this piece because:</div>
+            <div class="opts" id="b4">
+                <div class="opt" onclick="pick('b4',this)" data-val="A">It fits the space</div>
+                <div class="opt" onclick="pick('b4',this)" data-val="B">It meets requirements</div>
+                <div class="opt" onclick="pick('b4',this)" data-val="C">I genuinely love it</div>
+            </div>
+        </div>
+        <button class="btn" onclick="goTo(3)">Continue</button>
+    </div>
 
-            try {
-                const res = await fetch(PROXY, { method: 'POST', body: JSON.stringify(body) });
-                const data = await res.json();
-                const bPass = sel['q1'] === 'C';
-                const pass = data.durable.pass && data.washable.pass && bPass;
+    <div class="step" id="step-3">
+        <div class="step-label">Step 3 of 3</div>
+        <h2>Apply the éStandard.</h2>
+        <button class="btn" id="run-btn" onclick="runAssessment()">Apply the éStandard</button>
+    </div>
 
-                document.getElementById('v-name').innerText = document.getElementById('name').value + ' ' + document.getElementById('price').value;
-                document.getElementById('v-word').innerText = pass ? 'Approved.' : 'Not Approved.';
-                document.getElementById('v-word').className = 'verdict-word ' + (pass ? 'pass' : 'fail');
-                document.getElementById('v-details').innerHTML = `Durable: ${data.durable.pass?'✓':'✗'}<br>Washable: ${data.washable.pass?'✓':'✗'}<br>Beautiful: ${bPass?'✓':'✗'}`;
-                
-                document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
-                document.getElementById('res').classList.add('active');
-            } catch (e) { alert("Error connecting to Worker."); go(2); }
-        }
-    </script>
+    <div class="step" id="step-loading" style="text-align:center; padding:50px;">Applying the éStandard...</div>
+
+    <div class="step" id="step-result">
+        <div class="verdict-stamp" id="verdict-stamp"></div>
+        
+        <div class="cta-box">
+            <div style="font-size:10px; text-transform:uppercase; color:var(--brown); margin-bottom:5px;">Upgrade Your Results</div>
+            <h3>Want the full report?</h3>
+            <p style="font-size:12px; margin-bottom:15px; color:var(--muted); line-height:1.5;">Get a professional analysis of materials, construction quality, and long-term failure risk.</p>
+            <div style="font-size:14px; font-weight:400; margin-bottom:15px; color:var(--ink);">$48 · Instant Access</div>
+            <button class="btn" style="margin-top:0;" onclick="window.open('https://doteahome.store','_blank')">Get Full Report</button>
+        </div>
+        
+        <button class="btn" style="background:none; color:var(--taupe); border:0.5px solid var(--line);" onclick="location.reload()">Assess another piece</button>
+    </div>
+</div>
+
+<script>
+let sel = {}; let imageB64 = null;
+
+function handleFile(e) {
+    const f = e.target.files[0];
+    const r = new FileReader();
+    r.onload = ev => {
+        imageB64 = ev.target.result.split(',')[1];
+        const img = document.getElementById('preview-img');
+        img.src = ev.target.result; img.style.display = 'block';
+        document.getElementById('upload-zone').style.display = 'none';
+    };
+    r.readAsDataURL(f);
+}
+
+function goTo(n) { document.querySelectorAll('.step').forEach(s => s.classList.remove('active')); document.getElementById('step-' + n).classList.add('active'); window.scrollTo(0,0); }
+function pick(group, el) { document.querySelectorAll('#' + group + ' .opt').forEach(o => o.classList.remove('selected')); el.classList.add('selected'); sel[group] = el.dataset.val; }
+
+async function runAssessment() {
+    goTo('loading');
+    const PROXY = 'https://assessment.doteahome.workers.dev';
+    const itemName = document.getElementById('item-name').value || "Submitted Piece";
+    const itemPrice = document.getElementById('item-price').value || "";
+    
+    const beautyScore = ['b1','b2','b3','b4'].filter(k => sel[k] === 'C').length;
+    const beautyPass = beautyScore >= 3;
+
+    const userContent = [{ type: 'text', text: `Item: ${itemName}\nPrice: ${itemPrice}\nURL: ${document.getElementById('link-input').value}` }];
+    if (imageB64) userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageB64 } });
+
+    try {
+        const res = await fetch(PROXY, { method: 'POST', body: JSON.stringify({ messages: [{ role: 'user', content: userContent }] }) });
+        const result = await res.json();
+        const allPass = result.durable.pass && result.washable.pass && beautyPass;
+        
+        document.getElementById('verdict-stamp').innerHTML = `
+            <div style="font-size:10px; text-transform:uppercase; color:var(--taupe); margin-bottom:10px;">${itemName} ${itemPrice}</div>
+            <div class="verdict-word ${allPass ? 'pass' : 'fail'}">${allPass ? 'Approved.' : 'Not Approved.'}</div>
+            <div class="divider-line"></div>
+            <div style="font-size:12px; color:${result.durable.pass ? 'var(--pass-text)' : 'var(--fail-text)'}">Durable — ${result.durable.pass ? '✓ Pass' : '✗ Fail'}</div>
+            <div style="font-size:12px; color:${result.washable.pass ? 'var(--pass-text)' : 'var(--fail-text)'}">Washable — ${result.washable.pass ? '✓ Pass' : '✗ Fail'}</div>
+            <div style="font-size:12px; color:${beautyPass ? 'var(--pass-text)' : 'var(--fail-text)'}">Beautiful — ${beautyPass ? '✓ Pass' : '✗ Fail'}</div>
+        `;
+        goTo('result');
+    } catch (e) { alert("Assessment error. Check Cloudflare Worker logs."); goTo(3); }
+}
+</script>
 </body>
 </html>
-
