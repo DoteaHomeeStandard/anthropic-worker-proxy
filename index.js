@@ -10,19 +10,17 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    if (request.method !== "POST") {
-      return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
-    }
-
     try {
       const body = await request.json();
-      
-      // The System Prompt forces the AI to only return the "Verdict" data
-      const systemPrompt = `You are the éStandard assessment engine. Return ONLY valid JSON.
+
+      // The System Prompt tells the AI to focus ONLY on technical specs.
+      // It will see the "Beauty" status in the user message but won't have to calculate it.
+      const systemPrompt = `You are the éStandard assessment engine. 
+Return ONLY a JSON object. No prose. No explanations.
+
 CRITERIA:
-DURABLE: Will it last 10 years? (frame, materials, grade).
-WASHABLE: Can the owner clean it easily without professional help?
-BEAUTIFUL: Use the intake status provided in the prompt.
+1. DURABLE: Based on materials/construction, will it last 10 years?
+2. WASHABLE: Can the owner maintain/clean the surface themselves?
 
 OUTPUT FORMAT:
 {"itemName":"Product Name","durable":{"pass":true},"washable":{"pass":true}}`;
@@ -44,17 +42,12 @@ OUTPUT FORMAT:
 
       const result = await response.json();
 
-      // Error handling to prevent the "reading 0" crash
       if (!result.content || result.content.length === 0) {
-        return new Response(JSON.stringify({ error: "AI returned no content" }), { 
-          status: 500, 
-          headers: corsHeaders 
-        });
+        throw new Error("AI failed to respond");
       }
 
-      // Extract only the JSON text from Claude's response
-      let aiText = result.content[0].text;
-      aiText = aiText.replace(/```json|```/g, "").trim();
+      // Clean the AI response to ensure it is pure JSON
+      let aiText = result.content[0].text.replace(/```json|```/g, "").trim();
 
       return new Response(aiText, {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
