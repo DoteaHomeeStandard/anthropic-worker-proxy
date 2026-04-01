@@ -3,173 +3,1351 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>The éStandard — Dotéa Home</title>
+<title>éStandard — Internal Evaluation Tool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
---oat: #F5F1EA; --taupe: #C7B8A4; --brown: #9A7B5C; --ink: #2A2420;
---muted: #7A6E65; --line: #DDD8D0; --cream: #FAF8F4;
---pass-bg: #EDF3E6; --pass-text: #2D5016; --fail-bg: #F5EDEA; --fail-text: #6B2B1F;
+  --oat: #F5F1EA;
+  --taupe: #C7B8A4;
+  --brown: #9A7B5C;
+  --ink: #2A2420;
+  --muted: #7A6E65;
+  --line: #DDD8D0;
+  --cream: #FAF8F4;
+  --pass: #3A6B18;
+  --fail: #7A2820;
+  --pass-bg: #EDF3E6;
+  --fail-bg: #F7EDEA;
 }
-body { font-family: 'Jost', sans-serif; font-weight: 300; background: var(--cream); color: var(--ink); min-height: 100vh; letter-spacing: 0.01em; padding: 20px; }
-.wrap { max-width: 420px; margin: 0 auto; }
-.header { text-align: center; margin-bottom: 3rem; }
-.wordmark { font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
-.wordmark em { font-style: italic; color: var(--brown); }
-.divider-line { width: 40px; height: 0.5px; background: var(--taupe); margin: 0.75rem auto; }
-.step { display: none; }
-.step.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-.step-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--taupe); margin-bottom: 0.5rem; font-weight: 400; }
-h2 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; line-height: 1.3; color: var(--ink); margin-bottom: 0.5rem; }
-.sub { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; font-weight: 300; }
-.upload-zone { border: 0.5px solid var(--line); border-radius: 4px; padding: 1.75rem 1rem; text-align: center; cursor: pointer; position: relative; background: #fff; margin-bottom: 0.75rem; }
-.preview-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 0.75rem; display: none; }
-.field { margin-bottom: 1rem; }
-.field label { display: block; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-.field input { width: 100%; font-family: 'Jost', sans-serif; font-size: 14px; padding: 10px 12px; border: 0.5px solid var(--line); border-radius: 4px; outline: none; }
-.q { margin-bottom: 1.75rem; }
-.q-text { font-size: 14px; color: var(--ink); line-height: 1.65; margin-bottom: 0.75rem; }
-.opts { display: flex; flex-direction: column; gap: 6px; }
-.opt { display: flex; align-items: flex-start; gap: 12px; padding: 11px 14px; border: 0.5px solid var(--line); border-radius: 4px; cursor: pointer; font-size: 13px; color: var(--muted); background: #fff; transition: all 0.15s; }
-.opt.selected { border-color: var(--brown); background: var(--oat); color: var(--ink); }
-.btn { width: 100%; padding: 14px; background: var(--ink); color: var(--oat); border: none; border-radius: 4px; font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; margin-top: 1rem; }
-.btn:disabled { opacity: 0.35; }
-.verdict-stamp { text-align: center; padding: 2.5rem 1.5rem; border: 0.5px solid var(--line); border-radius: 4px; background: #fff; margin-bottom: 1.5rem; }
-.verdict-word { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 300; }
-.pass { color: var(--pass-text); } .fail { color: var(--fail-text); }
-.cta-box { background: var(--oat); border: 0.5px solid var(--line); border-radius: 4px; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem;}
-.cta-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; margin-bottom: 8px; color: var(--ink); }
+
+body {
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  background: #EDEBE6;
+  color: var(--ink);
+  min-height: 100vh;
+  letter-spacing: 0.01em;
+}
+
+/* Layout */
+.shell {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 5rem;
+}
+
+/* Top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: var(--ink);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--taupe);
+  letter-spacing: 0.12em;
+}
+.topbar-brand em { color: var(--oat); font-style: italic; }
+.topbar-right { display: flex; gap: 0.75rem; align-items: center; }
+.top-btn {
+  padding: 7px 14px;
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 300;
+  transition: all 0.2s;
+  border: 0.5px solid;
+}
+.top-btn-primary { background: var(--brown); color: var(--oat); border-color: var(--brown); }
+.top-btn-primary:hover { opacity: 0.85; }
+.top-btn-ghost { background: transparent; color: var(--taupe); border-color: #4A4440; }
+.top-btn-ghost:hover { border-color: var(--taupe); color: var(--oat); }
+
+/* Cards */
+.card {
+  background: #fff;
+  border-radius: 6px;
+  border: 0.5px solid var(--line);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 0.5px solid var(--line);
+  background: var(--oat);
+}
+.card-title {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brown);
+  font-weight: 400;
+}
+.card-body { padding: 1.25rem; }
+
+/* Setup section */
+.setup-card {
+  background: var(--ink);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.setup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.setup-field label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--taupe);
+  margin-bottom: 5px;
+  font-weight: 400;
+}
+.setup-field input, .setup-field select {
+  width: 100%;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  padding: 8px 10px;
+  border: 0.5px solid #4A4440;
+  border-radius: 3px;
+  background: #1E1A18;
+  color: var(--oat);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.setup-field input:focus, .setup-field select:focus { border-color: var(--brown); }
+.setup-field select option { background: #1E1A18; }
+.setup-row { grid-column: 1 / -1; }
+.api-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  align-items: flex-end;
+}
+.api-row .setup-field { flex: 1; }
+.ai-fill-btn {
+  padding: 8px 16px;
+  background: var(--brown);
+  color: var(--oat);
+  border: none;
+  border-radius: 3px;
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: 300;
+  transition: opacity 0.2s;
+  height: 34px;
+  flex-shrink: 0;
+}
+.ai-fill-btn:hover { opacity: 0.85; }
+.ai-fill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ai-status {
+  font-size: 11px;
+  color: var(--taupe);
+  margin-top: 0.5rem;
+  min-height: 16px;
+}
+
+/* Section headers */
+.section-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brown);
+  font-weight: 400;
+  padding: 0.85rem 1.25rem;
+  background: #F9F7F3;
+  border-bottom: 0.5px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-pass-badge {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-weight: 400;
+}
+.section-pass-badge.pass { background: var(--pass-bg); color: var(--pass); }
+.section-pass-badge.fail { background: var(--fail-bg); color: var(--fail); }
+.section-pass-badge.pending { background: var(--oat); color: var(--muted); }
+
+/* Checkbox groups */
+.check-group { margin-bottom: 1.25rem; }
+.check-group-label {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 0.6rem;
+  font-weight: 300;
+}
+.check-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.check-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 0.5px solid var(--line);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.15s;
+  user-select: none;
+}
+.check-chip:hover { border-color: var(--taupe); }
+.check-chip.active { border-color: var(--brown); background: var(--oat); color: var(--ink); }
+.check-chip input { display: none; }
+
+/* Radio single-select */
+.radio-group { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 1.25rem; }
+.radio-chip {
+  padding: 6px 12px;
+  border: 0.5px solid var(--line);
+  border-radius: 100px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--muted);
+  background: #fff;
+  transition: all 0.15s;
+  user-select: none;
+}
+.radio-chip:hover { border-color: var(--taupe); }
+.radio-chip.active { border-color: var(--brown); background: var(--oat); color: var(--ink); }
+
+/* Determination row */
+.det-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 0.5rem;
+}
+.det-btn {
+  flex: 1;
+  padding: 10px;
+  border: 0.5px solid var(--line);
+  border-radius: 3px;
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  background: #fff;
+  color: var(--muted);
+  transition: all 0.15s;
+  font-weight: 300;
+}
+.det-btn.active-pass { border-color: var(--pass); background: var(--pass-bg); color: var(--pass); }
+.det-btn.active-fail { border-color: var(--fail); background: var(--fail-bg); color: var(--fail); }
+
+/* Textareas */
+.notes-area {
+  width: 100%;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  padding: 10px 12px;
+  border: 0.5px solid var(--line);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ink);
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+.notes-area:focus { border-color: var(--brown); }
+.notes-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+  margin-top: 1rem;
+  display: block;
+  font-weight: 400;
+}
+
+/* Closing formula */
+.formula-box {
+  background: var(--oat);
+  border: 0.5px solid var(--line);
+  border-radius: 4px;
+  padding: 1rem;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.7;
+  margin-top: 0.75rem;
+}
+.formula-box em { font-style: italic; color: var(--brown); }
+
+/* Result summary card */
+.result-card {
+  background: var(--ink);
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--oat);
+}
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.result-criterion { text-align: center; }
+.result-criterion-name {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--taupe);
+  margin-bottom: 0.3rem;
+}
+.result-criterion-status {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 300;
+}
+.result-criterion-status.pass { color: #7DC95E; }
+.result-criterion-status.fail { color: #E07060; }
+.result-overall {
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  padding-top: 1rem;
+  border-top: 0.5px solid #4A4440;
+}
+.result-overall.pass { color: #7DC95E; }
+.result-overall.fail { color: #E07060; }
+
+/* Loading overlay */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(42,36,32,0.7);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+.loading-overlay.visible { display: flex; }
+.loading-spinner {
+  width: 36px; height: 36px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-top-color: var(--taupe);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--taupe);
+}
+
+/* Divider */
+.section-divider {
+  height: 0.5px;
+  background: var(--line);
+  margin: 0.75rem 0;
+}
+
+/* Client email field */
+.client-field {
+  margin-bottom: 0.75rem;
+}
+.client-field label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 400;
+}
+.client-field input {
+  width: 100%;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  padding: 9px 12px;
+  border: 0.5px solid var(--line);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.client-field input:focus { border-color: var(--brown); }
+
+@media (max-width: 520px) {
+  .setup-grid { grid-template-columns: 1fr; }
+  .result-grid { grid-template-columns: 1fr; }
+  .topbar { padding: 0.75rem 1rem; }
+  .shell { padding: 1rem 1rem 4rem; }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-    <div class="header">
-        <div class="wordmark">Dotéa Home · <em>the éStandard</em></div>
-        <div class="divider-line"></div>
-    </div>
 
-    <div class="step active" id="step-1">
-        <div class="step-label">Step 1 of 3</div>
-        <h2>What are you considering?</h2>
-        <img id="preview-img" class="preview-img" />
-        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">Tap to upload photo</div>
-        <input type="file" accept="image/*" id="file-input" onchange="handleFile(event)" style="display:none;" />
-        <div class="field"><label>Product link</label><input type="url" id="link-input" placeholder="https://..."></div>
-        <div class="field"><label>Item name</label><input type="text" id="item-name"></div>
-        <div class="field"><label>Price</label><input type="text" id="item-price" placeholder="$"></div>
-        <button class="btn" onclick="goTo(2)">Continue</button>
-    </div>
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-brand">Dotéa Home · <em>éStandard</em> Internal</div>
+  <div class="topbar-right">
+    <button class="top-btn top-btn-ghost" onclick="clearAll()">Clear</button>
+    <button class="top-btn top-btn-primary" onclick="generatePDF()">Generate PDF Report</button>
+  </div>
+</div>
 
-    <div class="step" id="step-2">
-        <div class="step-label">Step 2 of 3 — Beauty</div>
-        <h2>Do you love it?</h2>
-        <div class="q">
-            <div class="q-text">If this piece were unavailable tomorrow, your reaction would be:</div>
-            <div class="opts" id="b1">
-                <div class="opt" onclick="pick('b1',this)" data-val="A">I'd find something similar</div>
-                <div class="opt" onclick="pick('b1',this)" data-val="B">I'd be mildly disappointed</div>
-                <div class="opt" onclick="pick('b1',this)" data-val="C">I would actively try to secure it</div>
-            </div>
-        </div>
-        <div class="q">
-            <div class="q-text">When you imagine living with this piece for 10 years:</div>
-            <div class="opts" id="b2">
-                <div class="opt" onclick="pick('b2',this)" data-val="A">I assume I'll replace it eventually</div>
-                <div class="opt" onclick="pick('b2',this)" data-val="B">I'm unsure</div>
-                <div class="opt" onclick="pick('b2',this)" data-val="C">I can see it aging with the home</div>
-            </div>
-        </div>
-        <div class="q">
-            <div class="q-text">If someone questioned this purchase, you would:</div>
-            <div class="opts" id="b3">
-                <div class="opt" onclick="pick('b3',this)" data-val="A">Second-guess myself</div>
-                <div class="opt" onclick="pick('b3',this)" data-val="B">Defend it logically</div>
-                <div class="opt" onclick="pick('b3',this)" data-val="C">Feel completely certain</div>
-            </div>
-        </div>
-        <div class="q">
-            <div class="q-text">I am choosing this piece because:</div>
-            <div class="opts" id="b4">
-                <div class="opt" onclick="pick('b4',this)" data-val="A">It fits the space</div>
-                <div class="opt" onclick="pick('b4',this)" data-val="B">It meets requirements</div>
-                <div class="opt" onclick="pick('b4',this)" data-val="C">I genuinely love it</div>
-            </div>
-        </div>
-        <button class="btn" onclick="goTo(3)">Continue</button>
-    </div>
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loading-text">Applying the éStandard…</div>
+</div>
 
-    <div class="step" id="step-3">
-        <div class="step-label">Step 3 of 3</div>
-        <h2>Apply the éStandard.</h2>
-        <button class="btn" id="run-btn" onclick="runAssessment()">Apply the éStandard</button>
-    </div>
+<div class="shell">
 
-    <div class="step" id="step-loading" style="text-align:center; padding:50px;">Applying the éStandard...</div>
-
-    <div class="step" id="step-result">
-        <div class="verdict-stamp" id="verdict-stamp"></div>
-        
-        <div class="cta-box">
-            <div style="font-size:10px; text-transform:uppercase; color:var(--brown); margin-bottom:5px;">Upgrade Your Results</div>
-            <h3>Want the full report?</h3>
-            <p style="font-size:12px; margin-bottom:15px; color:var(--muted); line-height:1.5;">Get a professional analysis of materials, construction quality, and long-term failure risk.</p>
-            <div style="font-size:14px; font-weight:400; margin-bottom:15px; color:var(--ink);">$48 · Instant Access</div>
-            <button class="btn" style="margin-top:0;" onclick="window.open('https://doteahome.store','_blank')">Get Full Report</button>
+  <!-- SETUP -->
+  <div class="setup-card">
+    <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--taupe);margin-bottom:1rem;font-weight:400;">Client + Product Intake</div>
+    <div class="setup-grid">
+      <div class="setup-field">
+        <label>Client Email</label>
+        <input type="email" id="client-email" placeholder="client@email.com" />
+      </div>
+      <div class="setup-field">
+        <label>Form Type</label>
+        <select id="form-type" onchange="switchFormType()">
+          <option value="universal">Universal (any category)</option>
+          <option value="furniture">Furniture Specific</option>
+        </select>
+      </div>
+      <div class="setup-field">
+        <label>Brand</label>
+        <input type="text" id="s-brand" placeholder="e.g. Restoration Hardware" />
+      </div>
+      <div class="setup-field">
+        <label>Product Name</label>
+        <input type="text" id="s-product" placeholder="e.g. Cloud Sectional" />
+      </div>
+      <div class="setup-field">
+        <label>Category</label>
+        <input type="text" id="s-category" placeholder="e.g. sofa, chandelier, faucet" />
+      </div>
+      <div class="setup-field">
+        <label>Price</label>
+        <input type="text" id="s-price" placeholder="$" />
+      </div>
+      <div class="setup-field setup-row">
+        <label>Declared Materials / Finish</label>
+        <input type="text" id="s-materials" placeholder="e.g. solid oak, oil finish, performance velvet" />
+      </div>
+      <div class="setup-field setup-row">
+        <label>Construction Method</label>
+        <input type="text" id="s-construction" placeholder="e.g. solid wood frame, mortise & tenon, knock-down hardware, welded steel" />
+      </div>
+      <div class="setup-field setup-row">
+        <label>Manufacturer Claims (optional)</label>
+        <input type="text" id="s-claims" placeholder="e.g. stain-resistant, solid hardwood frame, performance rated" />
+      </div>
+      <div class="setup-field setup-row">
+        <label>Construction Transparency</label>
+        <div class="radio-group" id="s-transparency" style="margin-top:4px;">
+          <div class="radio-chip" onclick="radioSelectSetup('s-transparency',this,'disclosed')">Disclosed — brand states materials and construction clearly</div>
+          <div class="radio-chip" onclick="radioSelectSetup('s-transparency',this,'partial')">Partial — some information available, some missing</div>
+          <div class="radio-chip" onclick="radioSelectSetup('s-transparency',this,'undisclosed')">Undisclosed — brand does not specify how this is built</div>
         </div>
-        
-        <button class="btn" style="background:none; color:var(--taupe); border:0.5px solid var(--line);" onclick="location.reload()">Assess another piece</button>
+      </div>
     </div>
+    <div class="api-row" style="justify-content:flex-end;">
+      <button class="ai-fill-btn" id="ai-fill-btn" onclick="aiFill()">Apply the éStandard ↓</button>
+    </div>
+    <div class="ai-status" id="ai-status"></div>
+  </div>
+
+  <!-- BEAUTY CONVICTION (from client intake) -->
+  <div class="card">
+    <div class="section-label">
+      Section 4 — Beauty (Client Conviction)
+      <span class="section-pass-badge pending" id="beauty-badge">Pending</span>
+    </div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:1rem;line-height:1.6;">Pulled from client intake. Score their responses below.</p>
+
+      <div class="check-group">
+        <div class="check-group-label">Q1 — If this piece were unavailable tomorrow:</div>
+        <div class="radio-group" id="bq1">
+          <div class="radio-chip" onclick="radioSelect('bq1',this,'A')" data-val="A">A — I'd find something similar</div>
+          <div class="radio-chip" onclick="radioSelect('bq1',this,'B')" data-val="B">B — Mildly disappointed</div>
+          <div class="radio-chip" onclick="radioSelect('bq1',this,'C')" data-val="C">C — Actively try to secure it</div>
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Q2 — Living with this piece for 10 years:</div>
+        <div class="radio-group" id="bq2">
+          <div class="radio-chip" onclick="radioSelect('bq2',this,'A')" data-val="A">A — I'll replace it eventually</div>
+          <div class="radio-chip" onclick="radioSelect('bq2',this,'B')" data-val="B">B — I'm unsure</div>
+          <div class="radio-chip" onclick="radioSelect('bq2',this,'C')" data-val="C">C — Can see it aging with the home</div>
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Q3 — If someone questioned this purchase:</div>
+        <div class="radio-group" id="bq3">
+          <div class="radio-chip" onclick="radioSelect('bq3',this,'A')" data-val="A">A — Second-guess myself</div>
+          <div class="radio-chip" onclick="radioSelect('bq3',this,'B')" data-val="B">B — Defend it logically</div>
+          <div class="radio-chip" onclick="radioSelect('bq3',this,'C')" data-val="C">C — Completely certain</div>
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Q4 — I am choosing this because:</div>
+        <div class="radio-group" id="bq4">
+          <div class="radio-chip" onclick="radioSelect('bq4',this,'A')" data-val="A">A — It fits the space</div>
+          <div class="radio-chip" onclick="radioSelect('bq4',this,'B')" data-val="B">B — Meets my requirements</div>
+          <div class="radio-chip" onclick="radioSelect('bq4',this,'C')" data-val="C">C — I genuinely love it</div>
+        </div>
+      </div>
+
+      <div class="check-group-label" style="margin-bottom:6px;">Beauty Determination</div>
+      <div class="det-row">
+        <button class="det-btn" id="beauty-pass-btn" onclick="setDetermination('beauty','pass')">Pass (Mostly C)</button>
+        <button class="det-btn" id="beauty-fail-btn" onclick="setDetermination('beauty','fail')">Does Not Pass (A or B majority)</button>
+      </div>
+
+      <span class="notes-label">Forensic Notes — Conviction Read</span>
+      <textarea class="notes-area" id="beauty-forensic" rows="3" placeholder="What her answers reveal about the nature of her conviction — legacy-grade or trend-grade."></textarea>
+      <span class="notes-label">Practical Translation</span>
+      <textarea class="notes-area" id="beauty-notes" rows="2" placeholder="e.g. She knows exactly what she wants. That certainty meets the threshold."></textarea>
+    </div>
+  </div>
+
+  <!-- DURABILITY -->
+  <div class="card">
+    <div class="section-label">
+      Section 2 — Durability
+      <span class="section-pass-badge pending" id="dur-badge">Pending</span>
+    </div>
+    <div class="card-body" id="dur-body">
+      <!-- populated by switchFormType() -->
+    </div>
+  </div>
+
+  <!-- WASHABILITY -->
+  <div class="card">
+    <div class="section-label">
+      Section 3 — Washability
+      <span class="section-pass-badge pending" id="wash-badge">Pending</span>
+    </div>
+    <div class="card-body" id="wash-body">
+      <!-- populated by switchFormType() -->
+    </div>
+  </div>
+
+  <!-- RESULT SUMMARY -->
+  <div class="result-card" id="result-card">
+    <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--taupe);margin-bottom:0.75rem;">éStandard Result</div>
+    <div class="result-grid">
+      <div class="result-criterion">
+        <div class="result-criterion-name">Durable</div>
+        <div class="result-criterion-status pending" id="res-dur">—</div>
+      </div>
+      <div class="result-criterion">
+        <div class="result-criterion-name">Washable</div>
+        <div class="result-criterion-status pending" id="res-wash">—</div>
+      </div>
+      <div class="result-criterion">
+        <div class="result-criterion-name">Beautiful</div>
+        <div class="result-criterion-status pending" id="res-beauty">—</div>
+      </div>
+    </div>
+    <div class="result-overall pending" id="res-overall">Determination pending</div>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="card">
+    <div class="section-label">Section 6 — Structured Closing</div>
+    <div class="card-body">
+      <div class="formula-box">
+        Structurally, this piece demonstrates <em>[high/moderate/insufficient]</em> integrity under expected use. Surface performance is <em>[stable/manageable/vulnerable]</em> under normal maintenance. Based on your intake responses, aesthetic conviction <em>[meets/does not meet]</em> the é Standard threshold. Therefore, this item <em>[passes/does not pass]</em> the é Standard.
+      </div>
+      <span class="notes-label">Your Closing (fill the formula above)</span>
+      <textarea class="notes-area" id="closing-text" rows="4" style="min-height:100px;" placeholder="Structurally, this piece demonstrates…"></textarea>
+    </div>
+  </div>
+
 </div>
 
 <script>
-let sel = {}; let imageB64 = null;
+// ─── State ────────────────────────────────────────────────────────────────────
+const determinations = { dur: null, wash: null, beauty: null };
+const beautyAnswers = { bq1: null, bq2: null, bq3: null, bq4: null };
+let constructionTransparency = null;
 
-function handleFile(e) {
-    const f = e.target.files[0];
-    const r = new FileReader();
-    r.onload = ev => {
-        imageB64 = ev.target.result.split(',')[1];
-        const img = document.getElementById('preview-img');
-        img.src = ev.target.result; img.style.display = 'block';
-        document.getElementById('upload-zone').style.display = 'none';
-    };
-    r.readAsDataURL(f);
+function radioSelectSetup(group, el, val) {
+  document.querySelectorAll('#' + group + ' .radio-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  if (group === 's-transparency') constructionTransparency = val;
 }
 
-function goTo(n) { document.querySelectorAll('.step').forEach(s => s.classList.remove('active')); document.getElementById('step-' + n).classList.add('active'); window.scrollTo(0,0); }
-function pick(group, el) { document.querySelectorAll('#' + group + ' .opt').forEach(o => o.classList.remove('selected')); el.classList.add('selected'); sel[group] = el.dataset.val; }
-
-async function runAssessment() {
-    goTo('loading');
-    const PROXY = 'https://assessment.doteahome.workers.dev';
-    const itemName = document.getElementById('item-name').value || "Submitted Piece";
-    const itemPrice = document.getElementById('item-price').value || "";
-    
-    const beautyScore = ['b1','b2','b3','b4'].filter(k => sel[k] === 'C').length;
-    const beautyPass = beautyScore >= 3;
-
-    const userContent = [{ type: 'text', text: `Item: ${itemName}\nPrice: ${itemPrice}\nURL: ${document.getElementById('link-input').value}` }];
-    if (imageB64) userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageB64 } });
-
-    try {
-        const res = await fetch(PROXY, { method: 'POST', body: JSON.stringify({ messages: [{ role: 'user', content: userContent }] }) });
-        const result = await res.json();
-        const allPass = result.durable.pass && result.washable.pass && beautyPass;
-        
-        document.getElementById('verdict-stamp').innerHTML = `
-            <div style="font-size:10px; text-transform:uppercase; color:var(--taupe); margin-bottom:10px;">${itemName} ${itemPrice}</div>
-            <div class="verdict-word ${allPass ? 'pass' : 'fail'}">${allPass ? 'Approved.' : 'Not Approved.'}</div>
-            <div class="divider-line"></div>
-            <div style="font-size:12px; color:${result.durable.pass ? 'var(--pass-text)' : 'var(--fail-text)'}">Durable — ${result.durable.pass ? '✓ Pass' : '✗ Fail'}</div>
-            <div style="font-size:12px; color:${result.washable.pass ? 'var(--pass-text)' : 'var(--fail-text)'}">Washable — ${result.washable.pass ? '✓ Pass' : '✗ Fail'}</div>
-            <div style="font-size:12px; color:${beautyPass ? 'var(--pass-text)' : 'var(--fail-text)'}">Beautiful — ${beautyPass ? '✓ Pass' : '✗ Fail'}</div>
-        `;
-        goTo('result');
-    } catch (e) { alert("Assessment error. Check Cloudflare Worker logs."); goTo(3); }
+// ─── Form type ────────────────────────────────────────────────────────────────
+function switchFormType() {
+  const type = document.getElementById('form-type').value;
+  renderDurForm(type);
+  renderWashForm(type);
 }
+
+function renderDurForm(type) {
+  const el = document.getElementById('dur-body');
+  if (type === 'furniture') {
+    el.innerHTML = `
+      <div class="check-group">
+        <div class="check-group-label">Frame / Core Construction</div>
+        <div class="check-grid" id="d-frame">
+          ${chips(['Solid hardwood','Plywood core','MDF','Particleboard','Metal welded','Metal bolted','Mixed construction','Unknown'],'d-frame-')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Joinery / Assembly</div>
+        <div class="check-grid" id="d-joinery">
+          ${chips(['Mortise & tenon','Dowelled','Screwed','Knock-down hardware','Stapled','Glued only','Welded','Unknown'],'d-join-')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Stress Risk Points</div>
+        <div class="radio-group" id="d-stress">
+          ${radioChips(['Minimal','Moderate','Significant'],'d-stress')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Load Capacity</div>
+        <div class="radio-group" id="d-load">
+          ${radioChips(['Suitable for daily use','Suitable for light use','Decorative only'],'d-load')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Failure Probability (5–10 yrs)</div>
+        <div class="radio-group" id="d-fail">
+          ${radioChips(['Low','Moderate','High'],'d-fail')}
+        </div>
+      </div>
+      <div class="check-group-label" style="margin-bottom:6px;">Durability Determination</div>
+      <div class="det-row">
+        <button class="det-btn" id="dur-pass-btn" onclick="setDetermination('dur','pass')">Pass</button>
+        <button class="det-btn" id="dur-fail-btn" onclick="setDetermination('dur','fail')">Does Not Pass</button>
+      </div>
+      <span class="notes-label">Forensic Notes — Structural Read</span>
+      <textarea class="notes-area" id="dur-forensic" rows="3" placeholder="What the construction evidence actually shows — frame, joinery, stress points, how and where it will age."></textarea>
+      <span class="notes-label">Practical Translation (3–5 sentences)</span>
+      <textarea class="notes-area" id="dur-notes" rows="4" placeholder="e.g. The frame is solid hardwood with mortise and tenon joinery. This piece will outlast the room it lives in."></textarea>
+    `;
+  } else {
+    el.innerHTML = `
+      <div class="check-group">
+        <div class="check-group-label">A. Core Integrity</div>
+        <div class="radio-group" id="d-core">
+          ${radioChips(['Solid, stable, engineered for load/use','Adequate but not overbuilt','Lightweight / thin components','Decorative-grade construction','Unknown / insufficient data'],'d-core')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">B. Stress Tolerance</div>
+        <div class="radio-group" id="d-stress">
+          ${radioChips(['Maintains structural stability','Minor loosening or movement','Deform, wobble, bend, or weaken','Fail under moderate use'],'d-stress')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">C. Component Reliability (if applicable)</div>
+        <div class="radio-group" id="d-comp">
+          ${radioChips(['Industrial or high-quality','Standard residential grade','Lightweight or failure-prone','Not applicable'],'d-comp')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">D. Longevity Outlook (5–10 Years)</div>
+        <div class="radio-group" id="d-long">
+          ${radioChips(['Structurally stable long term','Moderate wear expected','High likelihood of structural degradation'],'d-long')}
+        </div>
+      </div>
+      <div class="check-group-label" style="margin-bottom:6px;">Durability Determination</div>
+      <div class="det-row">
+        <button class="det-btn" id="dur-pass-btn" onclick="setDetermination('dur','pass')">Pass</button>
+        <button class="det-btn" id="dur-fail-btn" onclick="setDetermination('dur','fail')">Does Not Pass</button>
+      </div>
+      <span class="notes-label">Forensic Notes — Structural Read</span>
+      <textarea class="notes-area" id="dur-forensic" rows="3" placeholder="What the construction evidence actually shows — frame, joinery, stress points, how and where it will age."></textarea>
+      <span class="notes-label">Practical Translation (3–4 sentences)</span>
+      <textarea class="notes-area" id="dur-notes" rows="4" placeholder="e.g. The frame is solid hardwood with mortise and tenon joinery. This piece will outlast the room it lives in."></textarea>
+    `;
+  }
+  attachRadioListeners();
+}
+
+function renderWashForm(type) {
+  const el = document.getElementById('wash-body');
+  if (type === 'furniture') {
+    el.innerHTML = `
+      <div class="check-group">
+        <div class="check-group-label">Surface Type</div>
+        <div class="check-grid" id="w-surface">
+          ${chips(['Sealed wood','Oil finish','Lacquer','Polyurethane','Powder-coated metal','Plated metal','Natural stone sealed','Natural stone unsealed','Performance fabric','Natural fiber upholstery','Other'],'w-surf-')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Moisture Tolerance</div>
+        <div class="radio-group" id="w-moist">
+          ${radioChips(['High','Moderate','Low'],'w-moist')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Heat Tolerance</div>
+        <div class="radio-group" id="w-heat">
+          ${radioChips(['High','Moderate','Low'],'w-heat')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Scratch Visibility</div>
+        <div class="radio-group" id="w-scratch">
+          ${radioChips(['Low','Moderate','High'],'w-scratch')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Repairability</div>
+        <div class="radio-group" id="w-repair">
+          ${radioChips(['Easy','Possible with effort','Difficult','Not realistically repairable'],'w-repair')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">Maintenance Load</div>
+        <div class="radio-group" id="w-maint">
+          ${radioChips(['Minimal','Moderate','Demanding'],'w-maint')}
+        </div>
+      </div>
+      <div class="check-group-label" style="margin-bottom:6px;">Washability Determination</div>
+      <div class="det-row">
+        <button class="det-btn" id="wash-pass-btn" onclick="setDetermination('wash','pass')">Pass</button>
+        <button class="det-btn" id="wash-fail-btn" onclick="setDetermination('wash','fail')">Does Not Pass</button>
+      </div>
+      <span class="notes-label">Forensic Notes — Surface Read</span>
+      <textarea class="notes-area" id="wash-forensic" rows="3" placeholder="What the surface actually is, what it tolerates chemically, what household products are safe, what will ruin it."></textarea>
+      <span class="notes-label">Practical Translation (3–5 sentences)</span>
+      <textarea class="notes-area" id="wash-notes" rows="4" placeholder="e.g. The lacquer finish tolerates regular cleaning with a damp cloth. Spills wipe up. This is washable."></textarea>
+    `;
+  } else {
+    el.innerHTML = `
+      <div class="check-group">
+        <div class="check-group-label">A. Surface Resilience</div>
+        <div class="radio-group" id="w-resil">
+          ${radioChips(['Resistant to routine contact and cleaning','Requires mild care but manageable','Sensitive to normal cleaning methods','Easily damaged by daily use'],'w-resil')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">B. Moisture / Heat / Environmental Tolerance</div>
+        <div class="radio-group" id="w-env">
+          ${radioChips(['Handles environmental exposure well','Moderate sensitivity','High sensitivity'],'w-env')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">C. Stain / Mark Visibility</div>
+        <div class="radio-group" id="w-stain">
+          ${radioChips(['Low visibility','Moderate visibility','High visibility'],'w-stain')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">D. Repairability</div>
+        <div class="radio-group" id="w-repair">
+          ${radioChips(['Easily repaired or refinished','Repairable with effort','Difficult to repair','Replacement likely if damaged'],'w-repair')}
+        </div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-label">E. Maintenance Load</div>
+        <div class="radio-group" id="w-maint">
+          ${radioChips(['Minimal ongoing care','Moderate care required','Demanding or ritualized maintenance'],'w-maint')}
+        </div>
+      </div>
+      <div class="check-group-label" style="margin-bottom:6px;">Washability Determination</div>
+      <div class="det-row">
+        <button class="det-btn" id="wash-pass-btn" onclick="setDetermination('wash','pass')">Pass</button>
+        <button class="det-btn" id="wash-fail-btn" onclick="setDetermination('wash','fail')">Does Not Pass</button>
+      </div>
+      <span class="notes-label">Forensic Notes — Surface Read</span>
+      <textarea class="notes-area" id="wash-forensic" rows="3" placeholder="What the surface actually is, what it tolerates chemically, what household products are safe, what will ruin it."></textarea>
+      <span class="notes-label">Practical Translation (3–4 sentences)</span>
+      <textarea class="notes-area" id="wash-notes" rows="4" placeholder="e.g. The lacquer finish tolerates regular cleaning with a damp cloth."></textarea>
+    `;
+  }
+  attachRadioListeners();
+}
+
+function chips(options, prefix) {
+  return options.map((o,i) => `
+    <label class="check-chip" id="${prefix}${i}">
+      <input type="checkbox" />
+      ${o}
+    </label>
+  `).join('');
+}
+
+function radioChips(options, group) {
+  return options.map(o => `
+    <div class="radio-chip" onclick="radioSelect('${group}',this,'${o}')" data-val="${o}">${o}</div>
+  `).join('');
+}
+
+function attachRadioListeners() {
+  // radio chips already use onclick
+}
+
+function radioSelect(group, el, val) {
+  document.querySelectorAll('#' + group + ' .radio-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  if (group.startsWith('bq')) {
+    beautyAnswers[group] = val;
+    autoScoreBeauty();
+  }
+}
+
+function autoScoreBeauty() {
+  const vals = Object.values(beautyAnswers).filter(Boolean);
+  if (vals.length < 4) return;
+  const cs = vals.filter(v => v === 'C').length;
+  const pass = cs >= 3;
+  setDetermination('beauty', pass ? 'pass' : 'fail');
+}
+
+// ─── Determinations ───────────────────────────────────────────────────────────
+function setDetermination(section, val) {
+  determinations[section] = val;
+  const passBtn = document.getElementById(section + '-pass-btn');
+  const failBtn = document.getElementById(section + '-fail-btn');
+  if (!passBtn || !failBtn) return;
+
+  passBtn.classList.remove('active-pass','active-fail');
+  failBtn.classList.remove('active-pass','active-fail');
+  if (val === 'pass') passBtn.classList.add('active-pass');
+  else failBtn.classList.add('active-fail');
+
+  // update badge
+  const badge = document.getElementById(section === 'beauty' ? 'beauty-badge' : section + '-badge');
+  if (badge) {
+    badge.textContent = val === 'pass' ? 'Pass' : 'Does Not Pass';
+    badge.className = 'section-pass-badge ' + (val === 'pass' ? 'pass' : 'fail');
+  }
+
+  updateResult();
+}
+
+function updateResult() {
+  const d = determinations;
+  const labels = { pass: 'Pass', fail: 'Does Not Pass', null: '—' };
+
+  const durEl = document.getElementById('res-dur');
+  const washEl = document.getElementById('res-wash');
+  const beautyEl = document.getElementById('res-beauty');
+  const overallEl = document.getElementById('res-overall');
+
+  if (durEl) { durEl.textContent = labels[d.dur] || '—'; durEl.className = 'result-criterion-status ' + (d.dur || 'pending'); }
+  if (washEl) { washEl.textContent = labels[d.wash] || '—'; washEl.className = 'result-criterion-status ' + (d.wash || 'pending'); }
+  if (beautyEl) { beautyEl.textContent = labels[d.beauty] || '—'; beautyEl.className = 'result-criterion-status ' + (d.beauty || 'pending'); }
+
+  if (d.dur && d.wash && d.beauty) {
+    const allPass = d.dur === 'pass' && d.wash === 'pass' && d.beauty === 'pass';
+    overallEl.textContent = allPass ? 'Passes the éStandard' : 'Does Not Pass the éStandard';
+    overallEl.className = 'result-overall ' + (allPass ? 'pass' : 'fail');
+  } else {
+    overallEl.textContent = 'Determination pending';
+    overallEl.className = 'result-overall pending';
+  }
+}
+
+// ─── AI Pre-Fill ──────────────────────────────────────────────────────────────
+async function aiFill() {
+  const brand = document.getElementById('s-brand').value.trim();
+  const product = document.getElementById('s-product').value.trim();
+  const category = document.getElementById('s-category').value.trim();
+  const price = document.getElementById('s-price').value.trim();
+  const materials = document.getElementById('s-materials').value.trim();
+  const construction = document.getElementById('s-construction').value.trim();
+  const claims = document.getElementById('s-claims').value.trim();
+  const transparency = constructionTransparency || 'not selected';
+
+  // Beauty conviction answers
+  const bq1 = beautyAnswers.bq1 || 'Not answered';
+  const bq2 = beautyAnswers.bq2 || 'Not answered';
+  const bq3 = beautyAnswers.bq3 || 'Not answered';
+  const bq4 = beautyAnswers.bq4 || 'Not answered';
+
+  if (!materials && !construction && !brand) {
+    document.getElementById('ai-status').textContent = '✗ Enter at least brand, materials, or construction method before applying the éStandard.';
+    return;
+  }
+
+  showLoading(true, 'Applying the éStandard…');
+  const btn = document.getElementById('ai-fill-btn');
+  btn.disabled = true;
+  document.getElementById('ai-status').textContent = '';
+
+  const system = `You are the evaluation engine for Dotéa Home's éStandard Assessment — the internal tool used to determine whether a piece meets the éStandard: Durable, Washable, and Beautiful. All three, or keep looking.
+
+THE éSTANDARD EXISTS TO ENSURE THE PIECES SHE CHOOSES CAN SURVIVE CHILDREN WHILE REMAINING CLEANABLE AND BEAUTIFUL ENOUGH TO ENJOY.
+
+You write in the voice of Dotéa Home: direct, authoritative, warm without being soft. You are a technical authority, not a reviewer. You do not hedge. You state what the evidence shows and you name the determination.
+
+CONSTRUCTION TRANSPARENCY AS EVIDENCE:
+- Disclosed: Brand states materials and construction clearly. Assess what they've claimed.
+- Partial: Some information is available. Note what is missing and why that matters.
+- Undisclosed: Brand does not specify how this is built. This is not neutral. Treat opacity as a durability finding. Brands that build with solid hardwood say so. The absence of that claim is the claim. State this plainly in the Durability forensic notes.
+- "apply the éStandard" — never "run it through" or "evaluate"
+- "éStandard Approved" or "Does Not Meet the éStandard"
+- "Durable by necessity. Beautiful by design."
+- Washable means she can clean it with what she already has under her sink — dish soap, a damp cloth, a mild all-purpose spray. If it requires professional cleaning, specialized products, or extreme caution, it does not meet the Washable criterion.
+- Beauty is not your judgment of the piece. It is a read of her conviction level based on her intake responses.
+
+FOR EACH CRITERION, produce three things in this order:
+1. FORENSIC NOTES — The technical evidence read. What the construction, materials, or responses actually reveal. Name the stress points. Name the failure modes. Name the surface chemistry. Name what her answers signal about conviction grade.
+2. PRACTICAL TRANSLATION — What that evidence means in her real life, in her home, with her children. Specific. Named. No hedging.
+3. DETERMINATION — Pass or Does Not Meet the éStandard.
+
+Return ONLY valid JSON with no other text, no markdown, no backticks:
+{
+  "durForensic": "Technical structural read — frame, joinery, stress points, failure timeline, how and where it will age",
+  "durNotes": "What that means in her home — specific, named, real-life translation",
+  "durPass": true,
+  "washForensic": "Technical surface read — finish chemistry, what household products are safe, what will strip or damage it, repairability reality",
+  "washNotes": "Can she clean it with what she already has. Name the specific safe products. Name the one thing she should never reach for.",
+  "washPass": true,
+  "beautyForensic": "Read of her conviction level based on intake responses — is this legacy-grade or trend-grade desire",
+  "beautyNotes": "One plain sentence. What her conviction level means for the determination.",
+  "beautyPass": true,
+  "closing": "Structurally, this piece demonstrates [high/moderate/insufficient] integrity under the weight of daily family life. Surface performance is [stable/manageable/vulnerable] — she can clean it with what she already has, or she cannot. Based on her intake responses, aesthetic conviction [meets/does not meet] the éStandard threshold. This piece [is éStandard Approved / Does Not Meet the éStandard]."
+}`;
+
+  let prompt = 'Apply the éStandard to this piece.\n\n';
+  if (brand) prompt += 'Brand: ' + brand + '\n';
+  if (product) prompt += 'Product: ' + product + '\n';
+  if (category) prompt += 'Category: ' + category + '\n';
+  if (price) prompt += 'Price: ' + price + '\n';
+  if (materials) prompt += 'Declared materials / finish: ' + materials + '\n';
+  if (construction) prompt += 'Construction method: ' + construction + '\n';
+  if (claims) prompt += 'Manufacturer claims: ' + claims + '\n';
+  prompt += 'Construction transparency: ' + transparency + '\n';
+  prompt += '\nBeauty conviction intake responses:\n';
+  prompt += 'Q1 (if unavailable tomorrow): ' + bq1 + '\n';
+  prompt += 'Q2 (living with it 10 years): ' + bq2 + '\n';
+  prompt += 'Q3 (if someone questioned it): ' + bq3 + '\n';
+  prompt += 'Q4 (choosing it because): ' + bq4 + '\n';
+  prompt += '\nReturn only the JSON.';
+
+  const proxyUrl = 'https://assessment.doteahome.workers.dev';
+
+  try {
+    const res = await fetch(proxyUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        system,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const raw = data.content.map(b => b.text || '').join('');
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON returned. Raw: ' + raw.slice(0, 120));
+    const result = JSON.parse(jsonMatch[0]);
+
+    // Fill durability
+    const durForensic = document.getElementById('dur-forensic');
+    if (durForensic) durForensic.value = result.durForensic || '';
+    const durNotes = document.getElementById('dur-notes');
+    if (durNotes) durNotes.value = result.durNotes || '';
+    setDetermination('dur', result.durPass ? 'pass' : 'fail');
+
+    // Fill washability
+    const washForensic = document.getElementById('wash-forensic');
+    if (washForensic) washForensic.value = result.washForensic || '';
+    const washNotes = document.getElementById('wash-notes');
+    if (washNotes) washNotes.value = result.washNotes || '';
+    setDetermination('wash', result.washPass ? 'pass' : 'fail');
+
+    // Fill beauty
+    const beautyForensic = document.getElementById('beauty-forensic');
+    if (beautyForensic) beautyForensic.value = result.beautyForensic || '';
+    const beautyNotes = document.getElementById('beauty-notes');
+    if (beautyNotes) beautyNotes.value = result.beautyNotes || '';
+    if (result.beautyPass !== undefined) setDetermination('beauty', result.beautyPass ? 'pass' : 'fail');
+
+    // Fill closing
+    const closing = document.getElementById('closing-text');
+    if (closing && result.closing) closing.value = result.closing;
+
+    document.getElementById('ai-status').textContent = '✓ éStandard applied. Review each section before generating the report.';
+
+  } catch(err) {
+    document.getElementById('ai-status').textContent = '✗ Error: ' + err.message;
+  } finally {
+    showLoading(false);
+    btn.disabled = false;
+  }
+}
+
+function showLoading(visible, msg) {
+  const el = document.getElementById('loading-overlay');
+  el.classList.toggle('visible', visible);
+  if (msg) document.getElementById('loading-text').textContent = msg;
+}
+
+// ─── PDF Generation ───────────────────────────────────────────────────────────
+function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+
+  const brand = document.getElementById('s-brand').value.trim() || '—';
+  const product = document.getElementById('s-product').value.trim() || '—';
+  const category = document.getElementById('s-category').value.trim() || '—';
+  const price = document.getElementById('s-price').value.trim() || '—';
+  const materials = document.getElementById('s-materials').value.trim() || '—';
+  const construction = document.getElementById('s-construction').value.trim() || '—';
+
+  const durForensic = document.getElementById('dur-forensic')?.value.trim() || '';
+  const durNotes = document.getElementById('dur-notes')?.value.trim() || '—';
+  const washForensic = document.getElementById('wash-forensic')?.value.trim() || '';
+  const washNotes = document.getElementById('wash-notes')?.value.trim() || '—';
+  const beautyForensic = document.getElementById('beauty-forensic')?.value.trim() || '';
+  const beautyNotes = document.getElementById('beauty-notes')?.value.trim() || '';
+  const closing = document.getElementById('closing-text')?.value.trim() || '—';
+
+  const durPass = determinations.dur === 'pass';
+  const washPass = determinations.wash === 'pass';
+  const beautyPass = determinations.beauty === 'pass';
+  const allPass = durPass && washPass && beautyPass;
+
+  const PW = 612, PH = 792;
+  const margin = 60;
+  const contentW = PW - margin * 2;
+  let y = margin;
+
+  const colors = {
+    ink: [42, 36, 32],
+    brown: [154, 123, 92],
+    taupe: [199, 184, 164],
+    muted: [122, 110, 101],
+    line: [221, 216, 208],
+    oat: [245, 241, 234],
+    pass: [45, 80, 22],
+    fail: [106, 43, 31],
+    passBg: [237, 243, 230],
+    failBg: [247, 237, 234]
+  };
+
+  function setColor(rgb) { doc.setTextColor(...rgb); }
+  function setFill(rgb) { doc.setFillColor(...rgb); }
+  function setDraw(rgb) { doc.setDrawColor(...rgb); }
+  function rule(yy, color) {
+    color = color || colors.line;
+    setDraw(color);
+    doc.setLineWidth(0.5);
+    doc.line(margin, yy, PW - margin, yy);
+  }
+  function newPage() {
+    doc.addPage();
+    y = margin;
+    // header on each page
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    setColor(colors.taupe);
+    doc.text('DOTÉA HOME · THE éSTANDARD EVALUATION', margin, 30);
+    doc.text('CONFIDENTIAL', PW - margin, 30, { align: 'right' });
+    rule(38, colors.line);
+    y = 55;
+  }
+  function checkPage(needed) {
+    if (y + needed > PH - margin) newPage();
+  }
+
+  // ── HEADER ──────────────────────────────────────────────────────────────────
+  // Brand bar
+  setFill(colors.ink);
+  doc.rect(0, 0, PW, 72, 'F');
+  doc.setFontSize(8);
+  doc.setFont('helvetica','normal');
+  setColor(colors.taupe);
+  doc.text('DOTÉA HOME', margin, 28);
+  doc.setFontSize(18);
+  doc.setFont('helvetica','normal');
+  setColor([245, 241, 234]);
+  doc.text('é Standard Evaluation', margin, 50);
+  doc.setFontSize(8);
+  setColor(colors.taupe);
+  doc.text('CONFIDENTIAL · CLIENT REPORT', margin, 64);
+
+  // Date right side
+  doc.setFontSize(7);
+  doc.text(new Date().toLocaleDateString('en-US', { year:'numeric',month:'long',day:'numeric' }), PW - margin, 50, { align: 'right' });
+
+  y = 96;
+
+  // ── PRODUCT SNAPSHOT ────────────────────────────────────────────────────────
+  setFill(colors.oat);
+  doc.rect(margin, y, contentW, 100, 'F');
+  setColor(colors.brown);
+  doc.setFontSize(7);
+  doc.setFont('helvetica','bold');
+  doc.text('PRODUCT SNAPSHOT', margin + 12, y + 14);
+  rule(y + 18, colors.line);
+
+  const snapFields = [
+    ['Brand', brand], ['Product', product],
+    ['Category', category], ['Price', price],
+    ['Declared Materials', materials], ['Construction', construction],
+    ['Manufacturer Claims', claims], ['Construction Transparency', (constructionTransparency || '—').charAt(0).toUpperCase() + (constructionTransparency || '—').slice(1)]
+  ];
+  const col = contentW / 2;
+  let sx = margin + 12, sy = y + 28;
+  snapFields.forEach((pair, i) => {
+    if (i === 2 || i === 4) { sx = margin + 12; sy += 22; }
+    if (i % 2 === 1) sx = margin + col;
+    doc.setFontSize(7);
+    doc.setFont('helvetica','bold');
+    setColor(colors.muted);
+    doc.text(pair[0].toUpperCase(), sx, sy);
+    doc.setFont('helvetica','normal');
+    setColor(colors.ink);
+    const lines = doc.splitTextToSize(pair[1], col - 20);
+    doc.text(lines[0] || '—', sx, sy + 9);
+  });
+
+  y += 112;
+
+  // ── RESULT BADGE ────────────────────────────────────────────────────────────
+  checkPage(70);
+  const badgeColor = allPass ? colors.pass : colors.fail;
+  const badgeBg = allPass ? colors.passBg : colors.failBg;
+  setFill(badgeBg);
+  doc.rect(margin, y, contentW, 52, 'F');
+  setDraw(badgeColor);
+  doc.setLineWidth(0.75);
+  doc.rect(margin, y, contentW, 52);
+  doc.setFontSize(16);
+  doc.setFont('helvetica','bold');
+  setColor(badgeColor);
+  doc.text(allPass ? 'Passes the é Standard' : 'Does Not Pass the é Standard', PW/2, y + 22, { align: 'center' });
+  doc.setFontSize(8);
+  doc.setFont('helvetica','normal');
+  const sub = `Durable: ${durPass ? 'Pass' : 'Fail'} · Washable: ${washPass ? 'Pass' : 'Fail'} · Beautiful: ${beautyPass ? 'Pass' : 'Fail'}`;
+  doc.text(sub, PW/2, y + 38, { align: 'center' });
+  y += 68;
+
+  // ── SECTION FUNCTION ────────────────────────────────────────────────────────
+  function section(title, pass, forensic, notes) {
+    checkPage(90);
+    // Section header
+    setFill(colors.ink);
+    doc.rect(margin, y, contentW, 22, 'F');
+    doc.setFontSize(8);
+    doc.setFont('helvetica','bold');
+    setColor([245,241,234]);
+    doc.text(title.toUpperCase(), margin + 12, y + 14);
+
+    const statusText = pass ? 'éSTANDARD APPROVED' : 'DOES NOT MEET THE éSTANDARD';
+    const statusColor = pass ? [125,201,94] : [224,112,96];
+    setColor(statusColor);
+    doc.text(statusText, PW - margin - 12, y + 14, { align: 'right' });
+    y += 30;
+
+    // Forensic notes
+    if (forensic) {
+      checkPage(60);
+      doc.setFontSize(7);
+      doc.setFont('helvetica','bold');
+      setColor(colors.brown);
+      doc.text('FORENSIC READ', margin, y);
+      y += 10;
+      const fLines = doc.splitTextToSize(forensic, contentW - 24);
+      const fH = fLines.length * 12 + 20;
+      checkPage(fH);
+      setFill([249, 247, 243]);
+      setDraw(colors.line);
+      doc.setLineWidth(0.5);
+      doc.rect(margin, y, contentW, fH, 'FD');
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica','normal');
+      setColor(colors.muted);
+      doc.text(fLines, margin + 12, y + 13);
+      y += fH + 8;
+    }
+
+    // Practical translation
+    if (notes) {
+      checkPage(60);
+      doc.setFontSize(7);
+      doc.setFont('helvetica','bold');
+      setColor(colors.brown);
+      doc.text('WHAT THIS MEANS', margin, y);
+      y += 10;
+      const noteLines = doc.splitTextToSize(notes, contentW - 24);
+      const noteH = noteLines.length * 13 + 20;
+      checkPage(noteH);
+      setFill([252, 251, 248]);
+      setDraw(colors.line);
+      doc.setLineWidth(0.5);
+      doc.rect(margin, y, contentW, noteH, 'FD');
+      doc.setFontSize(9);
+      doc.setFont('helvetica','normal');
+      setColor(colors.ink);
+      doc.text(noteLines, margin + 12, y + 14);
+      y += noteH + 12;
+    }
+  }
+
+  section('1 — Durability', durPass, durForensic, durNotes);
+  section('2 — Washability', washPass, washForensic, washNotes);
+
+  // Beauty
+  checkPage(70);
+  setFill(colors.ink);
+  doc.rect(margin, y, contentW, 22, 'F');
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  setColor([245,241,234]);
+  doc.text('3 — BEAUTY (CLIENT CONVICTION)', margin + 12, y + 14);
+  setColor(beautyPass ? [125,201,94] : [224,112,96]);
+  doc.text(beautyPass ? 'éSTANDARD APPROVED' : 'DOES NOT MEET THE éSTANDARD', PW - margin - 12, y + 14, { align: 'right' });
+  y += 30;
+
+  if (beautyForensic) {
+    checkPage(50);
+    doc.setFontSize(7);
+    doc.setFont('helvetica','bold');
+    setColor(colors.brown);
+    doc.text('CONVICTION READ', margin, y);
+    y += 10;
+    const bfLines = doc.splitTextToSize(beautyForensic, contentW - 24);
+    const bfH = bfLines.length * 12 + 20;
+    setFill([249,247,243]);
+    setDraw(colors.line);
+    doc.setLineWidth(0.5);
+    doc.rect(margin, y, contentW, bfH, 'FD');
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica','normal');
+    setColor(colors.muted);
+    doc.text(bfLines, margin + 12, y + 13);
+    y += bfH + 8;
+  }
+
+  const beautyLevelText = determinations.beauty === 'pass' ? 'Strong aesthetic conviction.' : 'Conviction level does not meet the éStandard threshold.';
+  const beautyFullText = beautyNotes || beautyLevelText;
+  checkPage(50);
+  doc.setFontSize(7);
+  doc.setFont('helvetica','bold');
+  setColor(colors.brown);
+  doc.text('WHAT THIS MEANS', margin, y);
+  y += 10;
+  const bLines = doc.splitTextToSize(beautyFullText, contentW - 24);
+  const bH = bLines.length * 13 + 20;
+  setFill([252,251,248]);
+  setDraw(colors.line);
+  doc.setLineWidth(0.5);
+  doc.rect(margin, y, contentW, bH, 'FD');
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  setColor(colors.ink);
+  doc.text(bLines, margin + 12, y + 14);
+  y += bH + 16;
+
+  // ── CLOSING ─────────────────────────────────────────────────────────────────
+  checkPage(80);
+  setFill(colors.oat);
+  setDraw(colors.line);
+  doc.setLineWidth(0.5);
+  const closingLines = doc.splitTextToSize(closing, contentW - 24);
+  const closingH = closingLines.length * 13 + 24;
+  checkPage(closingH + 8);
+  doc.rect(margin, y, contentW, closingH, 'FD');
+  doc.setFontSize(10);
+  doc.setFont('helvetica','normal');
+  setColor(colors.ink);
+  doc.text(closingLines, margin + 12, y + 16);
+  y += closingH + 20;
+
+  // ── FOOTER ──────────────────────────────────────────────────────────────────
+  if (!allPass) {
+    checkPage(65);
+    setFill([252,251,248]);
+    setDraw(colors.line);
+    doc.setLineWidth(0.5);
+    const nonApproval = 'A non-approval applies only to this specific piece. It does not eliminate the category or the concept you are drawn to. If you wish to move forward with a similar piece, continue your search for a version that meets all three criteria. Approval is granted only when durability, washability, and beauty each pass.';
+    const naLines = doc.splitTextToSize(nonApproval, contentW - 24);
+    const naH = naLines.length * 12 + 20;
+    doc.rect(margin, y, contentW, naH, 'FD');
+    doc.setFontSize(8);
+    setColor(colors.muted);
+    doc.text(naLines, margin + 12, y + 13);
+    y += naH + 16;
+  }
+
+  // Page footer on last page
+  rule(PH - 36, colors.line);
+  doc.setFontSize(7);
+  setColor(colors.taupe);
+  doc.text('Dotéa Home · éStandard Evaluation', margin, PH - 22);
+  doc.text('doteahome.store', PW - margin, PH - 22, { align: 'right' });
+
+  const filename = `eStandard-${(product || 'Evaluation').replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`;
+  doc.save(filename);
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+function clearAll() {
+  if (!confirm('Clear all fields?')) return;
+  document.querySelectorAll('input[type=text], input[type=url], input[type=email], textarea').forEach(el => el.value = '');
+  document.querySelectorAll('.radio-chip.active, .check-chip.active').forEach(el => el.classList.remove('active'));
+  constructionTransparency = null;
+  document.querySelectorAll('.det-btn').forEach(el => el.classList.remove('active-pass','active-fail'));
+  Object.keys(determinations).forEach(k => determinations[k] = null);
+  Object.keys(beautyAnswers).forEach(k => beautyAnswers[k] = null);
+  ['dur-badge','wash-badge','beauty-badge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = 'Pending'; el.className = 'section-pass-badge pending'; }
+  });
+  updateResult();
+  document.getElementById('ai-status').textContent = '';
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+switchFormType();
 </script>
 </body>
 </html>
